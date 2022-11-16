@@ -20,7 +20,7 @@ class Encoder(nn.Module):
     out = self.linear3(out)
     z = self.relu(out)
     return z
-    
+
 class Decoder(nn.Module):
   def __init__(self, latent_size, out_size):
     super().__init__()
@@ -38,7 +38,7 @@ class Decoder(nn.Module):
     out = self.linear3(out)
     w = self.sigmoid(out)
     return w
-    
+
 class UsadModel(nn.Module):
   def __init__(self, w_size, z_size):
     super().__init__()
@@ -73,7 +73,7 @@ class UsadModel(nn.Module):
     
   def epoch_end(self, epoch, result):
     print("Epoch [{}], val_loss1: {:.4f}, val_loss2: {:.4f}".format(epoch, result['val_loss1'], result['val_loss2']))
-    
+
 def evaluate(model, val_loader, n):
     outputs = [model.validation_step(to_device(batch,device), n) for [batch] in val_loader]
     return model.validation_epoch_end(outputs)
@@ -84,7 +84,7 @@ def training(epochs, model, train_loader, val_loader, opt_func=torch.optim.Adam)
     optimizer2 = opt_func(list(model.encoder.parameters())+list(model.decoder2.parameters()))
     for epoch in range(epochs):
         for [batch] in train_loader:
-            batch=to_device(batch,device)
+            batch=to_device(batch,device)#Load to CPU or GPU
             
             #Train AE1
             loss1,loss2 = model.training_step(batch,epoch+1)
@@ -104,7 +104,7 @@ def training(epochs, model, train_loader, val_loader, opt_func=torch.optim.Adam)
         model.epoch_end(epoch, result)
         history.append(result)
     return history
-    
+
 def testing(model, test_loader, alpha=.5, beta=.5):
     results=[]
     for [batch] in test_loader:
